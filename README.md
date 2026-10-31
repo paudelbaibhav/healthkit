@@ -13,7 +13,7 @@ it knows about", never "safe". Those questions still need a person.
 You need [uv](https://docs.astral.sh/uv/) and Python 3.11 or newer.
 
 ```
-uv tool install git+https://github.com/incri7/healthkit
+uv tool install git+https://github.com/paudelbaibhav/healthkit
 ```
 
 One checker, Opengrep, is a separate download: take the signed binary for your system from
