@@ -1,0 +1,33 @@
+rules:
+  - id: exception-text-in-reply
+    languages: [python]
+    severity: ERROR
+    message: >-
+      The exception's own text goes back to the caller. It can carry internal
+      details (database host, file paths) and blames the user for our fault. Log
+      the exception type; reply with a fixed message.
+    metadata:
+      incident: found in code review
+    patterns:
+      - pattern-inside: |
+          try:
+              ...
+          except $EXC as $E:
+              ...
+      - pattern-either:
+          - pattern: raise $CLS(..., str($E), ...)
+          - pattern: 'return {..., $KEY: str($E), ...}'
+          # Inside an f-string too (slice 007: one slipped through this way).
+          - pattern: raise $CLS(..., f"...{str($E)}...", ...)
+          - pattern: raise $CLS(..., f"...{$E}...", ...)
+          - pattern: 'return {..., $KEY: f"...{$E}...", ...}'
+      # `raise ... from exc` wraps the error for the calling code, it is not a reply
+      # (slice 007: the test bed commons/license_check.py's three wrappers).
+      # Measured: `pattern-not` does not exclude it in Opengrep 1.32; `pattern-not-inside` does.
+      - pattern-not-inside: raise $CLS(...) from $X
+      # Only built-in exceptions: their text was not written by us. A project's own
+      # exception classes carry messages written for the user (slice 001 trial:
+      # 17 of 25 first-draft hits were such classes).
+      - metavariable-regex:
+          metavariable: $EXC
+          regex: ^(BaseException|Exception|ValueError|TypeError|KeyError|LookupError|AttributeError|RuntimeError|OSError|IOError)$
