@@ -1,5 +1,7 @@
 # healthkit
 
+![healthkit: code-health checks for Python teams](docs/banner.png)
+
 healthkit checks Python code for problems that tools can find reliably, so people (and AI
 reviewers) can spend their time on the problems tools cannot. It works on any Python
 project; Django and web APIs get extra checks.
